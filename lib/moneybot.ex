@@ -27,7 +27,7 @@ defmodule MoneyBOT do
     ])
     { :ok, _ } = :cowboy.start_http(:http,
                                     100,
-                                   [{:port, 8080}],
+                                   [{:port, 80}],
                                    [{ :env, [{:dispatch, dispatch}]}]
                                    )
   end
