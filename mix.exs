@@ -27,7 +27,9 @@ defmodule MoneyBOT.Mixfile do
   defp deps do
     [
       {:ibrowse, github: "cmullaparthi/ibrowse", tag: "v4.1.1"},
-      {:httpotion, "~> 2.0.0"}
+      {:httpotion, "~> 2.0.0"},
+      {:cowboy, "~> 1.0.0"},
+      {:jsx, "~> 2.6.0"}
     ]
   end
 end
