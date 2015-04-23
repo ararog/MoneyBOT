@@ -27,9 +27,17 @@ defmodule MoneyBOT do
           {"/", QuoteHandler, []},
       ]}
     ])
+
+    env_port = System.get_env("PORT")
+
+    port = case env_port do
+      false -> 8080;
+      _ -> String.to_integer(env_port)
+    end
+
     { :ok, _ } = :cowboy.start_http(:http,
                                     100,
-                                   [{:port, 8080}],
+                                   [{:port, port}],
                                    [{ :env, [{:dispatch, dispatch}]}]
                                    )
   end
