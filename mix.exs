@@ -12,7 +12,10 @@ defmodule MoneyBOT.Mixfile do
   #
   # Type `mix help compile.app` for more information
   def application do
-    [applications: [:logger]]
+    [
+      mod: { MoneyBOT, [] },
+      applications: [:cowboy, :ranch, :logger, :httpotion]
+    ]
   end
 
   # Dependencies can be Hex packages:
@@ -29,7 +32,8 @@ defmodule MoneyBOT.Mixfile do
       {:ibrowse, github: "cmullaparthi/ibrowse", tag: "v4.1.1"},
       {:httpotion, "~> 2.0.0"},
       {:cowboy, "~> 1.0.0"},
-      {:jsx, "~> 2.6.0"}
+      {:jsx, "~> 2.4.0"},
+      {:exjsx, "~> 3.1.0"}
     ]
   end
 end
