@@ -1,5 +1,7 @@
 defmodule MoneyBOT do
 
+  @behaviour :application
+
   def start(_type, _args) do
 
     # Compile takes as argument a list of tuples that represent hosts to
@@ -27,8 +29,13 @@ defmodule MoneyBOT do
     ])
     { :ok, _ } = :cowboy.start_http(:http,
                                     100,
-                                   [{:port, 80}],
+                                   [{:port, 8080}],
                                    [{ :env, [{:dispatch, dispatch}]}]
                                    )
   end
+
+  def stop(_state) do
+      :ok
+  end
+
 end
