@@ -31,7 +31,7 @@ defmodule MoneyBOT do
     env_port = System.get_env("PORT")
 
     port = case env_port do
-      false -> 8080;
+      nil -> 8080
       _ -> String.to_integer(env_port)
     end
 
