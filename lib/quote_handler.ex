@@ -81,7 +81,7 @@ defmodule QuoteHandler do
     """
 
     HTTPotion.post "https://hooks.slack.com/services/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",
-      [body: "{payload: #{payload}}", headers: ["User-Agent": "Relaxe", "content-type": "application/json"]]
+      [body: "payload=#{payload}", headers: ["User-Agent": "Relaxe"]]
 
   end
 
