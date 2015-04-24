@@ -76,11 +76,11 @@ defmodule QuoteHandler do
       {
          "text": #{result},
          "icon_emoji": ":heavy_dollar_sign:",
-         "username": "Doleta-tu-Bufunfa"
+         "username": "USD-to-BRL"
       }
     """
 
-    HTTPotion.post "https://hooks.slack.com/services/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",
+    HTTPotion.post "https://hooks.slack.com/services/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",
       [body: "{payload: #{payload}}", headers: ["User-Agent": "Relaxe", "content-type": "application/json"]]
 
   end
