@@ -55,9 +55,18 @@ defmodule QuoteHandler do
 
   def build_body(request) do
 
-    response = HTTPotion.get "query.yahooapis.com/v1/public/yql?q=select%20*%20from%20html%20where%20url%3D%27www.google.com%2Ffinance%2Fconverter%3Fa%3D1%26from%3DUSD%26to%3DBRL%27%20and%20xpath%3D%27%2F%2F*%5B%40id%3D\"currency_converter_result\"%5D%2Fspan%2Ftext()%27&format=json&callback="
+    handler = spawn(__MODULE__, :query_results, [[]])
 
-    data = response.body |> to_string |> JSX.decode
+    response = HTTPotion.get "query.yahooapis.com/v1/public/yql?q=select%20*%20from%20html%20where%20url%3D%27www.google.com%2Ffinance%2Fconverter%3Fa%3D1%26from%3DUSD%26to%3DBRL%27%20and%20xpath%3D%27%2F%2F*%5B%40id%3D\"currency_converter_result\"%5D%2Fspan%2Ftext()%27&format=json&callback=",
+      [stream_to: handler]
+
+    "ok"
+
+  end
+
+  def process(json) do
+
+    data = json |> JSX.decode
 
     query = elem(data, 1)
 
@@ -69,13 +78,26 @@ defmodule QuoteHandler do
          "icon_emoji": ":heavy_dollar_sign:",
          "username": "Doleta-tu-Bufunfa"
       }
-"""
+    """
 
-    HTTPotion.post "https://hooks.slack.com/services/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",
+    HTTPotion.post "https://hooks.slack.com/services/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",
       [body: "{payload: #{payload}}", headers: ["User-Agent": "Relaxe", "content-type": "application/json"]]
 
+  end
 
-    result
+  def query_results(json) do
+
+    receive do
+
+      %HTTPotion.AsyncChunk{ id: _id, chunk: _chunk } ->
+        data = _chunk |> to_string
+        json = json ++ data
+        query_results json
+
+      %HTTPotion.AsyncEnd{ id: _id } ->
+        process json
+
+    end
 
   end
 
