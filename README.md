@@ -1,7 +1,7 @@
 MoneyBOT
 ========
 
-MoneyBOT is a currency code command/bot for Slack.
+MoneyBOT is a currency quote command/bot for Slack.
 
 # Instalation
 
@@ -16,4 +16,4 @@ In order to get MoneyBOT up and running please perform the following steps:
 * Change webhook url on code
 
 You can find more information about heroku build pack for elixir
-[here](https://github.com/HashNuke/heroku-buildpack-elixir). 
+[here](https://github.com/HashNuke/heroku-buildpack-elixir).
