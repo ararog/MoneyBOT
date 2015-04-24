@@ -74,7 +74,7 @@ defmodule QuoteHandler do
 
     payload = """
       {
-         "text": #{result},
+         "text": "#{result}",
          "icon_emoji": ":heavy_dollar_sign:",
          "username": "USD-to-BRL"
       }
