@@ -20,6 +20,10 @@ defmodule QuoteHandler do
   # a 3-tuple with :ok, a request object (containing the reply), and the current
   # state.
   def handle(request, state) do
+
+    {:ok, post_vals, req} = :cowboy_req.body_qs(request)
+    user_name = :proplists.get_value("user_name", post_vals)
+
     # construct a reply, using the cowboy_req:reply/4 function.
     #
     # reply/4 takes three arguments:
@@ -36,7 +40,7 @@ defmodule QuoteHandler do
       [ {"content-type", "text/plain"} ],
 
       # body of reply.
-      build_body(request),
+      build_body(request, user_name),
 
       # original request
       request
@@ -53,9 +57,9 @@ defmodule QuoteHandler do
     :ok
   end
 
-  def build_body(request) do
+  def build_body(request, user_name) do
 
-    handler = spawn(__MODULE__, :query_results, [[]])
+    handler = spawn(__MODULE__, :query_results, [[], user_name])
 
     response = HTTPotion.get "query.yahooapis.com/v1/public/yql?q=select%20*%20from%20html%20where%20url%3D%27www.google.com%2Ffinance%2Fconverter%3Fa%3D1%26from%3DUSD%26to%3DBRL%27%20and%20xpath%3D%27%2F%2F*%5B%40id%3D\"currency_converter_result\"%5D%2Fspan%2Ftext()%27&format=json&callback=",
       [stream_to: handler]
@@ -64,7 +68,7 @@ defmodule QuoteHandler do
 
   end
 
-  def process(json) do
+  def process(json, user_name) do
 
     data = json |> JSX.decode
 
@@ -74,7 +78,7 @@ defmodule QuoteHandler do
 
     payload = """
       {
-         "text": "#{result}",
+         "text": "#{user_name}: #{result}",
          "icon_emoji": ":heavy_dollar_sign:",
          "username": "USD-to-BRL"
       }
@@ -85,17 +89,17 @@ defmodule QuoteHandler do
 
   end
 
-  def query_results(json) do
+  def query_results(json, user_name) do
 
     receive do
 
       %HTTPotion.AsyncChunk{ id: _id, chunk: _chunk } ->
         data = _chunk |> to_string
         json = json ++ data
-        query_results json
+        query_results json, user_name
 
       %HTTPotion.AsyncEnd{ id: _id } ->
-        process json
+        process json, user_name
 
     end
 
