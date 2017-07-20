@@ -70,7 +70,7 @@ defmodule QuoteHandler do
 
     handler = spawn(__MODULE__, :query_results, [[], response_url, user_name, value])
 
-    response = HTTPotion.get "query.yahooapis.com/v1/public/yql?q=select%20*%20from%20html%20where%20url%3D%27www.google.com%2Ffinance%2Fconverter%3Fa%3D1%26from%3DUSD%26to%3DBRL%27%20and%20xpath%3D%27%2F%2F*%5B%40id%3D\"currency_converter_result\"%5D%2Fspan%2Ftext()%27&format=json&callback=",
+    response = HTTPotion.get "query.yahooapis.com/v1/public/yql?q=select%20*%20from%20htmlstring%20where%20url%3D%27www.google.com%2Ffinance%2Fconverter%3Fa%3D1%26from%3DUSD%26to%3DBRL%27%20and%20xpath%3D%27%2F%2F*%5B%40id%3D\"currency_converter_result\"%5D%2Fspan%2Ftext()%27&format=json&callback=&env=store%3A%2F%2Fdatatables.org%2Falltableswithkeys",
       [stream_to: handler]
 
     ""
@@ -82,7 +82,7 @@ defmodule QuoteHandler do
 
     query = elem(data, 1)
 
-    result = query["query"]["results"]
+    result = query["query"]["results"]["result"]
  
     {price, _} = Float.parse(result)
 
