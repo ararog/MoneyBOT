@@ -23,7 +23,10 @@ defmodule QuoteHandler do
 
     {:ok, post_vals, req} = :cowboy_req.body_qs(request)
     user_name = :proplists.get_value("user_name", post_vals)
+    cmd_name = :proplists.get_value("cmd_name", post_vals)
     response_url = :proplists.get_value("response_url", post_vals)
+    from = :proplists.get_value("from", post_vals)
+    to = :proplists.get_value("to", post_vals)
     text = :proplists.get_value("text", post_vals)
     value = cond do
       String.length(text) == 0 ->
@@ -31,7 +34,7 @@ defmodule QuoteHandler do
       true ->
         {val, _} = Float.parse(text)
         Float.round(val, 2)
-    end	
+    end
 
     # construct a reply, using the cowboy_req:reply/4 function.
     #
@@ -49,7 +52,7 @@ defmodule QuoteHandler do
       [ {"content-type", "text/plain"} ],
 
       # body of reply.
-      build_body(request, response_url, user_name, value),
+      build_body(request, cmd_name, response_url, from, to, user_name, value),
 
       # original request
       request
@@ -66,9 +69,9 @@ defmodule QuoteHandler do
     :ok
   end
 
-  def build_body(request, response_url, user_name, value) do
+  def build_body(request, cmd_name, response_url, from, to, user_name, value) do
 
-    handler = spawn(__MODULE__, :query_results, [[], response_url, user_name, value])
+    handler = spawn(__MODULE__, :query_results, [[], cmd_name, response_url, from, to, user_name, value])
 
     response = HTTPotion.get "query.yahooapis.com/v1/public/yql?q=select%20*%20from%20htmlstring%20where%20url%3D%27www.google.com%2Ffinance%2Fconverter%3Fa%3D1%26from%3DUSD%26to%3DBRL%27%20and%20xpath%3D%27%2F%2F*%5B%40id%3D\"currency_converter_result\"%5D%2Fspan%2Ftext()%27&format=json&callback=&env=store%3A%2F%2Fdatatables.org%2Falltableswithkeys",
       [stream_to: handler]
@@ -76,14 +79,14 @@ defmodule QuoteHandler do
     ""
   end
 
-  def process(json, response_url, user_name, value) do
+  def process(json, cmd_name, response_url, from, to, user_name, value) do
 
     data = json |> JSX.decode
 
     query = elem(data, 1)
 
     result = query["query"]["results"]["result"]
- 
+
     {price, _} = Float.parse(result)
 
     result = price * value
@@ -92,14 +95,14 @@ defmodule QuoteHandler do
        value == 1.0 ->
          "#{user_name}: #{result}"
        true ->
-         "#{Float.to_string(value, [decimals: 2])} USD is #{Float.to_string(result, [decimals: 2])} BRL"
+         "#{Float.to_string(value, [decimals: 2])} #{from} is #{Float.to_string(result, [decimals: 2])} #{to}"
     end
 
     payload = """
       {
          "text": "#{response_text}",
          "icon_emoji": ":heavy_dollar_sign:",
-         "username": "USD-to-BRL"
+         "username": "#{cmd_name}"
       }
     """
 
@@ -107,7 +110,8 @@ defmodule QuoteHandler do
   end
 
   def reply_command(payload, response_url, 1.0) do
-    HTTPotion.post "https://hooks.slack.com/services/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",
+    # "https://hooks.slack.com/services/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"
+    HTTPotion.post response_url,
       [body: "payload=#{payload}", headers: ["Content-Type": "application/x-www-form-urlencoded"]]
   end
 
@@ -116,17 +120,17 @@ defmodule QuoteHandler do
       [body: "payload=#{payload}", headers: ["Content-Type": "application/x-www-form-urlencoded"]]
   end
 
-  def query_results(json, response_url, user_name, value) do
+  def query_results(json, cmd_name, response_url, from, to, user_name, value) do
 
     receive do
 
       %HTTPotion.AsyncChunk{ id: _id, chunk: _chunk } ->
         data = _chunk |> to_string
         json = json ++ data
-        query_results json, response_url, user_name, value
+        query_results json, cmd_name, response_url, from, to, user_name, value
 
       %HTTPotion.AsyncEnd{ id: _id } ->
-        process json, response_url, user_name, value
+        process json, cmd_name, response_url, from, to, user_name, value
 
     end
 
