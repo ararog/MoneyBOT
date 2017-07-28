@@ -100,8 +100,16 @@ defmodule QuoteHandler do
          "#{Float.to_string(value, [decimals: 2])} #{from} is #{Float.to_string(result, [decimals: 2])} #{to}"
     end
 
+    response_type = cond do
+        value == 1.0 ->
+          "in_channel"
+        true ->
+          "ephemeral"
+    end
+
     payload = """
       {
+         "response_type": "#{response_type}",
          "text": "#{response_text}",
          "icon_emoji": ":heavy_dollar_sign:",
          "username": "#{cmd_name}"
