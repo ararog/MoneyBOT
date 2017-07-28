@@ -23,32 +23,12 @@ defmodule QuoteHandler do
 
     {:ok, post_vals, _} = :cowboy_req.body_qs(request)
     user_name = :proplists.get_value("user_name", post_vals)
-    cmd_name = :proplists.get_value("cmd_name", post_vals)
     response_url = :proplists.get_value("response_url", post_vals)
-    from = :proplists.get_value("from", post_vals)
-    to = :proplists.get_value("to", post_vals)
     text = :proplists.get_value("text", post_vals)
 
-    p_cmd_name = cond do
-      nil ->
-        "USD-to-BRL"
-      true ->
-        cmd_name
-    end
-
-    p_from = cond do
-      nil ->
-        "USD"
-      true ->
-        from
-    end
-
-    p_to = cond do
-      nil ->
-        "BRL"
-      true ->
-        to
-    end
+    {cmd_name, _} = :cowboy_req.qs_val("cmd_name", request, "USD-to-BRL")
+    {from, _} = :cowboy_req.qs_val("from", request, "USD")
+    {to, _} = :cowboy_req.qs_val("to", request, "BRL")
 
     p_value = cond do
       String.length(text) == 0 ->
@@ -74,7 +54,7 @@ defmodule QuoteHandler do
       [ {"content-type", "text/plain"} ],
 
       # body of reply.
-      build_body(request, p_cmd_name, response_url, p_from, p_to, user_name, p_value),
+      build_body(request, cmd_name, response_url, from, to, user_name, p_value),
 
       # original request
       request
