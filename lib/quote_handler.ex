@@ -30,21 +30,21 @@ defmodule QuoteHandler do
     text = :proplists.get_value("text", post_vals)
 
     p_cmd_name = cond do
-      String.length(cmd_name) == 0 ->
+      nil == 0 ->
         "USD-to-BRL"
       true ->
         cmd_name
     end
 
     p_from = cond do
-      String.length(text) == 0 ->
+      nil == 0 ->
         "USD"
       true ->
         from
     end
 
     p_to = cond do
-      String.length(text) == 0 ->
+      nil == 0 ->
         "BRL"
       true ->
         to
