@@ -3,7 +3,7 @@ defmodule MoneyBOT.Mixfile do
 
   def project do
     [app: :moneybot,
-     version: "0.0.1",
+     version: "0.0.2",
      elixir: "~> 1.0",
      deps: deps]
   end
@@ -14,7 +14,7 @@ defmodule MoneyBOT.Mixfile do
   def application do
     [
       mod: { MoneyBOT, [] },
-      applications: [:cowboy, :ranch, :logger, :httpotion]
+      applications: [:cowboy, :ranch, :logger]
     ]
   end
 
@@ -29,11 +29,11 @@ defmodule MoneyBOT.Mixfile do
   # Type `mix help deps` for more examples and options
   defp deps do
     [
-      {:ibrowse, github: "cmullaparthi/ibrowse", tag: "v4.1.1"},
-      {:httpotion, "~> 2.0.0"},
+      {:tesla, "~> 1.3.0"},
       {:cowboy, "~> 1.0.0"},
       {:jsx, "~> 2.4.0"},
-      {:exjsx, "~> 3.1.0"}
+      {:exjsx, "~> 3.1.0"},
+      {:sweet_xml, "~> 0.6.6"}
     ]
   end
 end
