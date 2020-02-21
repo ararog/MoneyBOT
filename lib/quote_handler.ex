@@ -52,6 +52,8 @@ defmodule QuoteHandler do
     {:ok, response} = Tesla.get "https://transferwise.com/br/currency-converter/#{from}-to-#{to}-rate"
 
     process response.body, cmd_name, response_url, from, to, user_name, value
+
+    ""
   end
 
   def process(response, cmd_name, response_url, from, to, user_name, value) do
